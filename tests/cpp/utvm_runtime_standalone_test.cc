@@ -23,11 +23,10 @@
 #include <gtest/gtest.h>
 #include <map>
 #include <vector>
+#include <iostream>
+#include <fstream>
 
 #ifdef USE_MICRO_STANDALONE_RUNTIME
-
-// Use system(..), `gcc -shared -fPIC`, thus restrict the test to OS X for now.
-#if defined(__APPLE__) && defined(__MACH__)
 
 #include <gtest/gtest.h>
 #include <topi/generic/injective.h>
@@ -100,6 +99,15 @@ TEST(MicroStandaloneRuntime, BuildModule) {
   std::string so_fname = std::tmpnam(nullptr);
   mod->SaveToFile(o_fname, "o");
   const std::vector<std::string> args = {"gcc", "-shared", "-fPIC", "-o", so_fname, o_fname};
+
+  std::cout << "so_fname: " << so_fname << std::endl;
+
+  std::string fjson = "test.json";
+  std::ofstream ofs;
+  ofs.open(fjson);
+  ofs << json << std::endl;
+  ofs.close();
+
   std::stringstream s;
   for (auto& c : args) {
     s << c << " ";
@@ -127,7 +135,6 @@ TEST(MicroStandaloneRuntime, BuildModule) {
   UTVMRuntimeDSOModuleDestroy(dsoModule);
 }
 
-#endif
 #endif
 
 int main(int argc, char** argv) {
